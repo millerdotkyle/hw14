@@ -1,25 +1,28 @@
 const connection = require('../config/connection');
-const { Thought, User } = require('../models');
-const getRandomName = require('./data');
-
-console.log(getRandomName());
-connection.on('error', (err) => err);
+const { Thought, User, Reaction } = require('../models');
+const { getRandomUsers, getRandomThoughts, getRandomFriends, getReactions, getRandomUsername, getRandomEmail } = require('./data');
 
 connection.once('open', async () => {
   await Thought.deleteMany({});
   await User.deleteMany({});
-  const users = await User.insertMany([
-    {
-      username: getRandomName(),
-      email: '',
-      thoughts: [],
-      friends: [],
-    },
-  });
-    
+  await Reaction.deleteMany({});
 
+ 
+  const users = [];
 
-  await User.collection.insertMany(users);
-  console.log(users);
-  process.exit(0);
+  const thoughts = getRandomThoughts(10);
+
+  for (let i = 0; i < 10; i++) {
+    const username = getRandomUsername();
+    const email = getRandomEmail();
+
+    users.push({ username, email, thoughts: [thoughts[i]] });
+  }
+
+await User.collection.insert(users);
+await Thought.collection.insert(thoughts);
+  
+
+console.log('Seeded!');
+
 });
